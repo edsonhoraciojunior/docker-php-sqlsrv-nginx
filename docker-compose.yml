@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  app:
+    build: ./php
+    volumes:
+      - ./../:/var/www/html/my-site
+    depends_on:
+      - sqlserver
+    working_dir: /var/www/html/my-site
+  sqlserver:
+    build: ./sqlserver
+    hostname: 'sqlserver'
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: admin
+    ports:
+      - '1433:1433'
+    volumes:
+      - ms-sqlserver-data:/var/opt/mssql
+  nginx:
+    build: ./nginx
+    restart: always
+    depends_on:
+      - app
+    ports:
+      - 8008:80
+    volumes_from:
+      - app
+
+volumes:
+  ms-sqlserver-data:
+    driver: local
